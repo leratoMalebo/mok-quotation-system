@@ -179,22 +179,37 @@ export function generatePDF(quote) {
     y += 10;
 
     // ================= TOTALS =================
+    // ── TOTALS ──
+    const totX = 128;
+    const effectiveTollCost = (hasTolls && includeTolls) ? (quote.tollCost || 0) : 0;
+    const totalExclVat = quote.price + effectiveTollCost;
+
+    doc.setFontSize(8.5);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
     doc.setTextColor(70, 70, 70);
 
-    doc.text("Subtotal:", 140, y);
-    doc.text(`R${quote.price.toLocaleString()}`, 196, y, { align: "right" });
+    doc.text("Subtotal:", totX, y);
+    doc.text(`R${quote.price.toLocaleString()}`, tableRight - pad, y, { align: "right" });
+    y += 7;
 
-    y += 8;
+    if (showTollsInPDF) {
+      doc.text("Tolls:", totX, y);
+      doc.text(`R${quote.tollCost.toLocaleString()}`, tableRight - pad, y, { align: "right" });
+      y += 7;
+    }
+    doc.setDrawColor(10, 42, 67);
+    doc.setLineWidth(0.5);
+    doc.line(totX, y, tableRight, y);
+    y += 6;
 
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(...PRIMARY);
+    doc.setFontSize(10.5);
+    doc.setTextColor(10, 42, 67);
+    const totalLabel = (hasTolls && !includeTolls) ? "Total Excl. Tolls:" : "Total Excl. VAT:";
+    doc.text(totalLabel, totX, y);
+    doc.text(`R${totalExclVat.toLocaleString()}`, tableRight - pad, y, { align: "right" });
 
-    doc.text("Total Excl. VAT:", 140, y);
-    doc.text(`R${quote.price.toLocaleString()}`, 196, y, { align: "right" });
-
-    y += 15;
+    y += 16;
 
     // ================= NOTES =================
     doc.setFont("helvetica", "bold");
@@ -206,7 +221,7 @@ export function generatePDF(quote) {
     doc.setFontSize(8);
 
     const notes = doc.splitTextToSize(
-`The estimate does not include storage, survey, custom inspection, or any unforeseen expenses.
+      `The estimate does not include storage, survey, custom inspection, or any unforeseen expenses.
 
 Our offer is without commitment until final agreement.
 
