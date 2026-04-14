@@ -32,8 +32,8 @@ export function generatePDF(quote) {
     quote.agent === "Neo"
       ? { tel: "069 437 1308", email: "neo@moktransports.com" }
       : quote.agent === "Mavis"
-      ? { tel: "011 834 6496", email: "mavis@moktransports.com" }
-      : { tel: "011 834 6496", email: "ryan@moktransports.com" };
+        ? { tel: "011 834 6496", email: "mavis@moktransports.com" }
+        : { tel: "011 834 6496", email: "ryan@moktransports.com" };
 
   // ================= HEADER =================
   const logo = new Image();
@@ -106,35 +106,36 @@ export function generatePDF(quote) {
     doc.setFont("helvetica", "normal");
     doc.setTextColor(50, 50, 50);
 
-    const addressLines = doc.splitTextToSize(quote.address || "-", 80);
+    const cleanAddress = (quote.address || "-").split(",")[0];
 
     doc.text(`Client: ${quote.customer}`, 112, 88);
     doc.text(`Company: ${quote.company || "-"}`, 112, 94);
     doc.text(`Tel: ${quote.phone}`, 112, 100);
-    doc.text(`Address:`, 112, 106);
-    doc.text(addressLines, 112, 111, { maxWidth: 80 });
+    doc.text(`Address: ${cleanAddress}`, 112, 106);
 
     // ================= TABLE =================
     let y = 120;
 
-    const col = {
+    const tableCol = {
       service: M,
-      route: M + 35,
-      desc: M + 95,
+      route: M + 45,
+      desc: M + 115,
       price: W - M
     };
 
-    // HEADER (clean style)
+    // HEADER
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     doc.setTextColor(...PRIMARY);
 
-    doc.text("Service", col.service, y);
-    doc.text("Route", col.route, y);
-    doc.text("Description", col.desc, y);
-    doc.text("Price", col.price, y, { align: "right" });
+    doc.text("Service", tableCol.service, y);
+    doc.text("Route", tableCol.route, y);
+    doc.text("Description", tableCol.desc, y);
+    doc.text("Price", tableCol.price, y, { align: "right" });
 
-    doc.setDrawColor(200);
+    // HEADER LINE
+    doc.setDrawColor(...PRIMARY);
+    doc.setLineWidth(0.5);
     doc.line(M, y + 2, W - M, y + 2);
 
     y += 10;
@@ -145,25 +146,34 @@ export function generatePDF(quote) {
     const routeLines = doc.splitTextToSize(cleanRoute, 50);
     const descLines = doc.splitTextToSize(
       quote.commodity || "General Freight",
-      55
+      50
     );
 
     const lineHeight = 5;
     const rowHeight =
-      Math.max(routeLines.length, descLines.length) * lineHeight + 4;
+      Math.max(routeLines.length, descLines.length) * lineHeight + 8;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(60, 60, 60);
 
-    doc.text(quote.vehicle, col.service, y);
-    doc.text(routeLines, col.route, y);
-    doc.text(descLines, col.desc, y);
-    doc.text(`R${quote.price.toLocaleString()}`, col.price, y, { align: "right" });
+    doc.text(quote.vehicle, tableCol.service, y);
+    doc.text(routeLines, tableCol.route, y);
+    doc.text(descLines, tableCol.desc, y);
+    doc.text(`R${quote.price.toLocaleString()}`, tableCol.price, y, { align: "right" });
 
-    y += rowHeight + 6;
+    // VERTICAL LINES (clean separation)
+    doc.setDrawColor(210);
+    doc.setLineWidth(0.3);
 
-    doc.setDrawColor(220);
+    doc.line(tableCol.route - 8, y - 6, tableCol.route - 8, y + rowHeight);
+    doc.line(tableCol.desc - 8, y - 6, tableCol.desc - 8, y + rowHeight);
+
+    // BOTTOM LINE
+    y += rowHeight + 2;
+
+    doc.setDrawColor(180);
+    doc.setLineWidth(0.4);
     doc.line(M, y, W - M, y);
 
     y += 10;
