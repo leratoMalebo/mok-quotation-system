@@ -191,7 +191,7 @@ export function generatePDF(quote) {
     doc.setFont("helvetica", "bold");
     doc.setTextColor(...PRIMARY);
 
-    doc.text("Total Excl. Tolls:", 140, y);
+    doc.text("Total Excl. VAT:", 140, y);
     doc.text(`R${quote.price.toLocaleString()}`, 196, y, { align: "right" });
 
     y += 15;
@@ -237,4 +237,5 @@ Payment must be made in advance if no credit facility exists.`,
     doc.save(`${quote.quoteNumber}.pdf`);
   };
 }
+
 
