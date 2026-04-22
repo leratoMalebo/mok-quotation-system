@@ -8,6 +8,7 @@ import {
   getLocalPrice,
   getChargeableWeight,
   estimateTollFromRoute,
+  suggestZone,
 } from "./pricing";
 
 export default function QuoteForm({ setQuote }) {
@@ -398,6 +399,20 @@ export default function QuoteForm({ setQuote }) {
             </select>
           </div>
 
+          {/* Zone hint */}
+          {!zone && delivery && suggestZone(serviceType, delivery) && (
+            <div className="zone-hint">
+              💡 Suggested zone for <strong>{delivery.split(",")[0]}</strong>:
+              <button
+                type="button"
+                className="zone-hint-btn"
+                onClick={() => setZone(suggestZone(serviceType, delivery))}
+              >
+                {suggestZone(serviceType, delivery)} — Apply
+              </button>
+            </div>
+          )}
+
           <div className="form-grid-2">
             <div>
               <label className="field-label">Parcel Type</label>
@@ -435,10 +450,17 @@ export default function QuoteForm({ setQuote }) {
             onChange={e => setPickup(e.target.value)}
           />
           <input
-            placeholder="Delivery Address"
+            placeholder="Delivery Address — type to auto-suggest zone"
             ref={deliveryRef}
             value={delivery}
-            onChange={e => setDelivery(e.target.value)}
+            onChange={e => {
+              setDelivery(e.target.value);
+              // Auto-suggest zone if not already selected
+              if (!zone) {
+                const suggested = suggestZone(serviceType, e.target.value);
+                if (suggested) setZone(suggested);
+              }
+            }}
           />
         </>
       )}
@@ -455,5 +477,4 @@ export default function QuoteForm({ setQuote }) {
     </form>
   );
 }
-
 
