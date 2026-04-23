@@ -154,15 +154,21 @@ export const zonePlacesMap = {
 };
 
 // Smart zone suggestion: given a destination string, guess most likely zone
+// Returns empty string for cross-border addresses — those go through Cross Border type
 export function suggestZone(serviceKey, destination) {
   if (!destination || !serviceKey) return "";
+
+  // Do not suggest zones for clearly cross-border addresses
+  const crossBorderPattern = /botswana|namibia|zimbabwe|kenya|mozambique|zambia|malawi|tanzania|lesotho|swaziland|eswatini|angola|drc|congo|rwanda|uganda|gaborone|windhoek|harare|bulawayo|nairobi|maputo|lusaka|lilongwe|luanda|kigali|kampala/i;
+  if (crossBorderPattern.test(destination)) return "";
+
   const dest = destination.toLowerCase();
   const service = localServices[serviceKey];
   if (!service) return "";
 
   for (const zone of service.zones) {
     const places = zonePlacesMap[zone] || [];
-    if (places.some(p => dest.includes(p.toLowerCase()) || p.toLowerCase().includes(dest))) {
+    if (places.some(p => dest.includes(p.toLowerCase()) || p.toLowerCase().includes(dest.split(",")[0].trim()))) {
       return zone;
     }
   }

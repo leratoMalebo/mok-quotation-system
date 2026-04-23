@@ -115,6 +115,7 @@ export default function QuoteForm({ setQuote }) {
       if (status === "OK") {
         const km = Math.round(result.routes[0].legs[0].distance.value / 1000);
         setDistance(km);
+        // Tolls only calculated for National routes
         if (type === "National") {
           const t = estimateTollFromRoute(origin, dest, vehicle, km);
           setTollCost(Math.round(t.total));
@@ -399,19 +400,25 @@ export default function QuoteForm({ setQuote }) {
             </select>
           </div>
 
-          {/* Zone hint */}
-          {!zone && delivery && suggestZone(serviceType, delivery) && (
-            <div className="zone-hint">
-              💡 Suggested zone for <strong>{delivery.split(",")[0]}</strong>:
-              <button
-                type="button"
-                className="zone-hint-btn"
-                onClick={() => setZone(suggestZone(serviceType, delivery))}
-              >
-                {suggestZone(serviceType, delivery)} — Apply
-              </button>
-            </div>
-          )}
+          {/* Zone hint — only shown if zone not yet set AND suggestion exists AND delivery looks local (SA) */}
+          {!zone && delivery && (() => {
+            const isLikelyCrossBorder = /botswana|namibia|zimbabwe|kenya|mozambique|zambia|malawi|tanzania|lesotho|swaziland|eswatini|gaborone|windhoek|harare|bulawayo|nairobi|maputo|lusaka|lilongwe/i.test(delivery);
+            if (isLikelyCrossBorder) return null;
+            const suggested = suggestZone(serviceType, delivery);
+            if (!suggested) return null;
+            return (
+              <div className="zone-hint">
+                💡 Suggested zone for <strong>{delivery.split(",")[0]}</strong>:
+                <button
+                  type="button"
+                  className="zone-hint-btn"
+                  onClick={() => setZone(suggested)}
+                >
+                  {suggested} — Apply
+                </button>
+              </div>
+            );
+          })()}
 
           <div className="form-grid-2">
             <div>
@@ -450,18 +457,35 @@ export default function QuoteForm({ setQuote }) {
             onChange={e => setPickup(e.target.value)}
           />
           <input
-            placeholder="Delivery Address — type to auto-suggest zone"
+            placeholder="Delivery Address"
             ref={deliveryRef}
             value={delivery}
             onChange={e => {
-              setDelivery(e.target.value);
-              // Auto-suggest zone if not already selected
-              if (!zone) {
-                const suggested = suggestZone(serviceType, e.target.value);
+              const val = e.target.value;
+              setDelivery(val);
+              // Only auto-suggest zone for local SA addresses
+              const isLikelyCrossBorder = /botswana|namibia|zimbabwe|kenya|mozambique|zambia|malawi|tanzania|lesotho|swaziland|eswatini|gaborone|windhoek|harare|bulawayo|nairobi|maputo|lusaka|lilongwe/i.test(val);
+              if (!zone && !isLikelyCrossBorder) {
+                const suggested = suggestZone(serviceType, val);
                 if (suggested) setZone(suggested);
               }
             }}
           />
+
+          {/* Distance calculation for Local — shown after addresses entered */}
+          {pickup && delivery && (
+            <button type="button" onClick={calculateDistance} disabled={distanceLoading}>
+              {distanceLoading ? "Calculating…" : "📍 Calculate Distance"}
+            </button>
+          )}
+
+          {/* Distance result for Local */}
+          {distance && type === "Local(Weights)" && (
+            <div className="info-box">
+              <p>📏 <strong>Distance:</strong> {distance} km</p>
+              <p className="note-text">Distance is for reference — local courier pricing is based on weight and zone, not distance.</p>
+            </div>
+          )}
         </>
       )}
 
