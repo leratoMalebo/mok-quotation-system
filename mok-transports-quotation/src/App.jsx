@@ -2,7 +2,7 @@ import { useState } from "react";
 import QuoteForm from "./QuoteForm";
 import QuotePreview from "./QuotePreview";
 import Dashboard from "./Dashboard";
-import quoteHistory from "./quoteHistory";
+import QuoteHistory from "./quoteHistory";
 import { saveQuote, updateQuote } from "./quoteService";
 import "./style.css";
 
