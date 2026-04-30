@@ -11,50 +11,49 @@ import {
   suggestZone,
 } from "./pricing";
 
-export default function QuoteForm({ setQuote }) {
+export default function QuoteForm({ setQuote, editingQuote }) {
 
   // ── CLIENT ──
-  const [customer, setCustomer]   = useState("");
-  const [company, setCompany]     = useState("");
-  const [email, setEmail]         = useState("");
-  const [address, setAddress]     = useState("");
-  const [phone, setPhone]         = useState("");
-  const [commodity, setCommodity] = useState("");
-  const [clientRef, setClientRef] = useState("");
+  const [customer, setCustomer]   = useState(editingQuote?.customer   || "");
+  const [company, setCompany]     = useState(editingQuote?.company    || "");
+  const [email, setEmail]         = useState(editingQuote?.email      || "");
+  const [address, setAddress]     = useState(editingQuote?.address    || "");
+  const [phone, setPhone]         = useState(editingQuote?.phone      || "");
+  const [commodity, setCommodity] = useState(editingQuote?.commodity  || "");
+  const [clientRef, setClientRef] = useState(editingQuote?.clientRef  || "");
 
   // ── STAFF ──
-  const [agent, setAgent] = useState("Neo");
+  const [agent, setAgent] = useState(editingQuote?.agent || "Neo");
 
   // ── JOB TYPE ──
-  const [type, setType]               = useState("National");
-  const [vehicle, setVehicle]         = useState("1 Tonner");
-  const [deliveryType, setDeliveryType] = useState("Standard");
+  const [type, setType]               = useState(editingQuote?.type         || "National");
+  const [vehicle, setVehicle]         = useState(editingQuote?.vehicle      || "1 Tonner");
+  const [deliveryType, setDeliveryType] = useState(editingQuote?.deliveryType || "Standard");
 
   // ── NATIONAL ──
-  const [pickup, setPickup]   = useState("");
-  const [delivery, setDelivery] = useState("");
+  const [pickup, setPickup]     = useState(editingQuote?.pickup   || "");
+  const [delivery, setDelivery] = useState(editingQuote?.delivery || "");
 
   // ── CROSS BORDER ──
-  const [country, setCountry]   = useState("");
-  const [city, setCity]         = useState("");
-  // Direction: "SA_TO_ABROAD" | "ABROAD_TO_SA"
-  const [cbDirection, setCbDirection] = useState("SA_TO_ABROAD");
+  const [country, setCountry]       = useState(editingQuote?.country     || "");
+  const [city, setCity]             = useState(editingQuote?.city        || "");
+  const [cbDirection, setCbDirection] = useState(editingQuote?.cbDirection || "SA_TO_ABROAD");
 
   // ── LOCAL ──
-  const [serviceType, setServiceType] = useState("SameDay Express Air");
-  const [zone, setZone]               = useState("");
-  const [weight, setWeight]           = useState("");
+  const [serviceType, setServiceType] = useState(editingQuote?.serviceType || "SameDay Express Air");
+  const [zone, setZone]               = useState(editingQuote?.zone        || "");
+  const [weight, setWeight]           = useState(editingQuote?.actualWeight || editingQuote?.weight || "");
   const [volLength, setVolLength]     = useState("");
   const [volWidth, setVolWidth]       = useState("");
   const [volHeight, setVolHeight]     = useState("");
-  const [parcelType, setParcelType]   = useState("Document");
+  const [parcelType, setParcelType]   = useState(editingQuote?.parcelType  || "Document");
 
   // ── CALCULATED ──
-  const [distance, setDistance]               = useState(null);
-  const [tollCost, setTollCost]               = useState(0);
-  const [tollBreakdown, setTollBreakdown]     = useState([]);
-  const [tollEstimated, setTollEstimated]     = useState(false);
-  const [chargeableWeight, setChargeableWeight] = useState(null);
+  const [distance, setDistance]               = useState(editingQuote?.distance    || null);
+  const [tollCost, setTollCost]               = useState(editingQuote?.tollCost    || 0);
+  const [tollBreakdown, setTollBreakdown]     = useState(editingQuote?.tollBreakdown || []);
+  const [tollEstimated, setTollEstimated]     = useState(editingQuote?.tollEstimated || false);
+  const [chargeableWeight, setChargeableWeight] = useState(editingQuote?.weight || null);
   const [crossBorderResult, setCrossBorderResult] = useState(null);
   const [distanceLoading, setDistanceLoading] = useState(false);
 
@@ -501,5 +500,4 @@ export default function QuoteForm({ setQuote }) {
     </form>
   );
 }
-
 
