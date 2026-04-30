@@ -45,7 +45,7 @@ export default function Dashboard({ quotes }) {
       {/* ── AGENT BREAKDOWN ── */}
       {agentData.length > 0 && (
         <div className="agent-breakdown">
-          <h4 className="agent-breakdown-title">👤 Agent Activity</h4>
+          <h4 className="agent-breakdown-title">👤 Staff Activity</h4>
           <div className="agent-cards">
             {agentData.map(agent => (
               <div className="agent-card" key={agent.key}>
