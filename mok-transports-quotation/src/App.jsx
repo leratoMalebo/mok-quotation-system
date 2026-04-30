@@ -2,8 +2,8 @@ import { useState } from "react";
 import QuoteForm from "./QuoteForm";
 import QuotePreview from "./QuotePreview";
 import Dashboard from "./Dashboard";
-import Quotehistory from "./Quotehistory";
-import { saveQuote, updateQuote } from "./Quoteservice";
+import Quotehistory from "./quoteHistory";
+import { saveQuote, updateQuote } from "./quoteService";
 import "./style.css";
 
 export default function App() {

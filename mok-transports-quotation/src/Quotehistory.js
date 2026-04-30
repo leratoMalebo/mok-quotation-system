@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { searchQuotes, deleteQuote } from "./Quoteservice";
+import { searchQuotes, deleteQuote } from "./quoteService";
 import { generatePDF } from "./pdfGenerator";
 
 export default function QuoteHistory({ onEditQuote, onViewQuote, refreshTrigger }) {
