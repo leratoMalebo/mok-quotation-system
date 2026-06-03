@@ -1,33 +1,42 @@
 import jsPDF from "jspdf";
 
-// Helper: extract the shortest meaningful place name from an address
+// Helper: extract the most meaningful place name from an address
+// Strategy: skip pure-number parts and generic country-level terms,
+// then return the FIRST remaining part (usually suburb/city), capped at 20 chars.
 function shortenAddress(addr) {
   if (!addr) return "";
   const parts = addr.split(",").map(p => p.trim()).filter(Boolean);
   if (parts.length === 0) return addr;
-  // Filter out parts that are just numbers or very short
-  const meaningful = parts.filter(p => !/^\d+$/.test(p) && p.length > 2);
-  if (meaningful.length === 0) return parts[0].slice(0, 18);
-  // Prefer the shortest meaningful part (usually a city/town name)
-  const shortest = meaningful.slice().sort((a, b) => a.length - b.length)[0];
-  // Hard cap at 18 characters
-  return shortest.length > 18 ? shortest.slice(0, 16) + "…" : shortest;
+
+  // Parts to skip: pure numbers, "South Africa", single letters
+  const skip = new Set(["south africa", "southafrica"]);
+  const meaningful = parts.filter(p =>
+    !/^\d+$/.test(p) &&
+    p.length > 1 &&
+    !skip.has(p.toLowerCase())
+  );
+
+  const chosen = meaningful.length > 0 ? meaningful[0] : parts[0];
+  // Hard cap at 20 characters — use plain ASCII ellipsis so jsPDF renders it
+  return chosen.length > 20 ? chosen.slice(0, 18) + "..." : chosen;
 }
 
 // Build a clean short route label
+// NOTE: Use " > " instead of " -> " — jsPDF's built-in Helvetica does NOT support
+// the Unicode arrow (U+2192 ->), which renders as garbled spaced characters in PDF.
 function buildShortRoute(quote) {
   if (quote.type === "National") {
-    return `${shortenAddress(quote.pickup)} → ${shortenAddress(quote.delivery)}`;
+    return `${shortenAddress(quote.pickup)} > ${shortenAddress(quote.delivery)}`;
   }
   if (quote.type === "Cross Border") {
     const origin = shortenAddress(quote.pickup) || "South Africa";
     const dest = quote.city ? `${quote.city}, ${quote.country}` : shortenAddress(quote.delivery);
-    return `${origin} → ${dest}`;
+    return `${origin} > ${dest}`;
   }
   // Local
   const from = shortenAddress(quote.pickup);
   const to = shortenAddress(quote.delivery);
-  return from && to ? `${from} → ${to}` : (quote.route || "");
+  return from && to ? `${from} > ${to}` : (quote.route || "");
 }
 
 export function generatePDF(quote, includeTolls = true) {
@@ -332,4 +341,6 @@ export function generatePDF(quote, includeTolls = true) {
     if (logo.complete) safeRender();
   });
 }
+
+
 
